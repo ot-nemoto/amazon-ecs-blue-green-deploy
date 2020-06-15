@@ -447,7 +447,7 @@ aws deploy create-deployment --cli-input-json file://deployment.json
 
 ### クリーンアップ
 
-AWS CodeDeploy
+*AWS CodeDeploy*
 
 ```sh
 aws deploy delete-deployment-group \
@@ -458,7 +458,7 @@ aws deploy delete-application \
     --application-name ecs-sample
 ```
 
-Amazon ECS
+*Amazon ECS*
 
 ```sh
 aws ecs delete-service \
@@ -470,14 +470,14 @@ aws ecs delete-cluster \
     --cluster ecs-sample-cluster
 ```
 
-Amazon S3
+*Amazon S3*
 
 ```sh
 aws s3 rm s3://${BucketName}/appspec.yaml
 aws s3 rb s3://${BucketName}
 ```
 
-Elastic Load Balancing
+*Elastic Load Balancing*
 
 ```sh
 aws elbv2 delete-load-balancer \
@@ -490,7 +490,7 @@ aws elbv2 delete-target-group \
     --target-group-arn ${TargetGroup2Arn}
 ```
 
-Amazon ECR
+*Amazon ECR*
 
 ```sh
 aws ecr list-images --repository-name ecs-sample-web --query 'imageIds[].imageDigest' --output text | while read digest
@@ -508,13 +508,13 @@ done
 aws ecr delete-repository --repository-name ecs-sample-app
 ```
 
-Amazon CloudWatch Logs
+*Amazon CloudWatch Logs*
 
 ```sh
 aws logs delete-log-group --log-group-name /ecs/ecs-sample
 ```
 
-AWS IAM
+*AWS IAM*
 
 ```sh
 aws iam detach-role-policy --role-name ecsSampleTaskExecutionRole \
@@ -526,4 +526,11 @@ aws iam delete-role --role-name ecsSampleTaskExecutionRole
 aws iam detach-role-policy --role-name ecsSampleCodeDeployRole \
     --policy-arn "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"
 aws iam delete-role --role-name ecsSampleCodeDeployRole
+```
+
+*Security Groups*
+
+```sh
+aws ec2 delete-security-group --groupId ${AlbSgId}
+aws ec2 delete-security-group --groupId ${EcsSgId}
 ```
