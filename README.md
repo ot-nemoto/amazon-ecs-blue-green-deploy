@@ -313,11 +313,15 @@ curl -s ${DNSName}
 
 ### AWS CodeDeploy リソースを作成
 
+*Create Application*
 ```sh
 aws deploy create-application \
     --application-name ecs-sample \
     --compute-platform ECS
+```
 
+*Create Target Group for wap*
+```sh
 aws elbv2 create-target-group \
     --name ecs-sample-tg2 \
     --protocol HTTP \
@@ -327,7 +331,12 @@ aws elbv2 create-target-group \
 
 TargetGroup2Arn=$(aws elbv2 describe-target-groups --names ecs-sample-tg2 \
     --query 'TargetGroups[].TargetGroupArn' --output text)
+echo ${TargetGroup2Arn}
+  # (e.g.) arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/ecs-sample-tg2/c238230b2f6c5b3e
+```
 
+*Create Deployment Group*
+```sh
 cat <<EOT > ecs-sample-deployment-group.json
 {
   "applicationName": "ecs-sample",
@@ -380,18 +389,17 @@ cat <<EOT > ecs-sample-deployment-group.json
 EOT
 
 aws deploy create-deployment-group --cli-input-json file://ecs-sample-deployment-group.json
+```
 
 ### デプロイ
 
-appspec.yamlを配置するS3を作成
-
+*Create Bucket for appspec.yaml*
 ```sh
 BucketName=ecs-sample-appspec-bucket
 aws s3 mb s3://${BucketName}
 ```
 
-appspec.yamlを作成
-
+*Create appspec.yaml*
 ```sh
 cat <<EOT > appspec.yaml
 version: 0.0
@@ -409,8 +417,7 @@ EOT
 aws s3 cp appspec.yaml s3://${BucketName}/appspec.yaml
 ```
 
-デプロイ
-
+*Create Deployment*
 ```sh
 cat <<EOT > deployment.json
 {
