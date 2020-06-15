@@ -48,6 +48,8 @@ VPCIDを取得
 
 ```sh
 VpcId=$(aws ec2 describe-vpcs --query 'Vpcs[?IsDefault==`true`].VpcId' --output text)
+echo ${VpcId}
+  # (e.g.) vpc-78549002
 ```
 
 ALBのセキュリティグループを作成
@@ -56,6 +58,8 @@ ALBのセキュリティグループを作成
 aws ec2 create-security-group --description alb-sg --group-name alb-sg --vpc-id ${VpcId}
 AlbSgId=$(aws ec2 describe-security-groups --filters "Name=vpc-id,Values=${VpcId}" \
     --query 'SecurityGroups[?GroupName==`alb-sg`].GroupId' --output text)
+echo ${AlbSgId}
+  # (s.g.) sg-0bc2b9b788bbbb4ca
 aws ec2 authorize-security-group-ingress --group-id ${AlbSgId} --protocol tcp --port 80 --cidr 0.0.0.0/0
 ```
 
@@ -65,6 +69,8 @@ ECSのセキュリティグループを作成
 aws ec2 create-security-group --description ecs-sg --group-name ecs-sg --vpc-id ${VpcId}
 EcsSgId=$(aws ec2 describe-security-groups --filters "Name=vpc-id,Values=${VpcId}" \
     --query 'SecurityGroups[?GroupName==`ecs-sg`].GroupId' --output text)
+echo ${EcsSgId}
+  # (e.g.) sg-038b61a4a2e997021
 aws ec2 authorize-security-group-ingress --group-id ${EcsSgId} --protocol tcp --port 80 --cidr 0.0.0.0/0
 ```
 
@@ -94,6 +100,8 @@ aws iam attach-role-policy --role-name ecsSampleTaskExecutionRole \
     --policy-arn "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 EcsTaskExecutionRoleArn=$(aws iam get-role --role-name ecsSampleTaskExecutionRole \
     --query 'Role.Arn' --output text)
+echo ${EcsTaskExecutionRoleArn}
+  # (e.g.) arn:aws:iam::123456789012:role/ecsSampleTaskExecutionRole
 ```
 
 ecsCodeDeployRoleを作成
@@ -120,6 +128,8 @@ aws iam attach-role-policy --role-name ecsSampleCodeDeployRole \
     --policy-arn "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"
 EcsCodeDeployRoleArn=$(aws iam get-role --role-name ecsSampleCodeDeployRole \
     --query 'Role.Arn' --output text)
+echo ${EcsCodeDeployRoleArn}
+  # (e.g.) arn:aws:iam::123456789012:role/ecsSampleCodeDeployRole
 ```
 
 ### Application Load Balancer を作成
@@ -129,6 +139,8 @@ EcsCodeDeployRoleArn=$(aws iam get-role --role-name ecsSampleCodeDeployRole \
 ```sh
 SubnetIds=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=${VpcId}" \
     --query 'Subnets[].SubnetId' --output text | cut -f-2)
+echo ${SubnetIds}
+  # (e.g.) subnet-6439c35a subnet-3b833267
 ```
 
 ALBを作成
@@ -141,6 +153,11 @@ aws elbv2 create-load-balancer \
 
 LoadBalancerArn=$(aws elbv2 describe-load-balancers --names ecs-sample-alb \
     --query 'LoadBalancers[].LoadBalancerArn' --output text)
+DNSName=$(aws elbv2 describe-load-balancers --names ecs-sample-alb \
+    --query 'LoadBalancers[].DNSName' --output text)
+echo ${LoadBalancerArn}; echo ${DNSName}
+  # (e.g.) arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/ecs-sample-alb/88a9dbaad271da6e
+  # (e.g.) ecs-sample-alb-1919540873.us-east-1.elb.amazonaws.com
 ```
 
 ターゲットグループを作成
@@ -155,6 +172,8 @@ aws elbv2 create-target-group \
 
 TargetGroup1Arn=$(aws elbv2 describe-target-groups --names ecs-sample-tg1 \
     --query 'TargetGroups[].TargetGroupArn' --output text)
+echo ${TargetGroup1Arn}
+  # (e.g.) arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/ecs-sample-tg1/439443992dad8c1c
 ```
 
 リスナー作成
@@ -168,6 +187,8 @@ aws elbv2 create-listener \
 
 ListenerArn=$(aws elbv2 describe-listeners --load-balancer-arn ${LoadBalancerArn} \
     --query 'Listeners[].ListenerArn' --output text)
+echo ${ListenerArn}
+  # (e.g.) arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/ecs-sample-alb/88a9dbaad271da6e/091d29198f3fa606
 ```
 
 ### Amazon ECS クラスターを作成
@@ -177,6 +198,8 @@ aws ecs create-cluster --cluster-name ecs-sample-cluster
 
 ClusterArn=$(aws ecs describe-clusters --cluster ecs-sample-cluster \
     --query 'clusters[].clusterArn' --output text)
+echo ${ClusterArn}
+  # (e.g.) arn:aws:ecs:us-east-1:123456789012:cluster/ecs-sample-cluster
 ```
 
 ### タスク定義を登録
@@ -235,6 +258,8 @@ EOT
 aws ecs register-task-definition --cli-input-json file://ecs-sample-task-definition.json
 TaskDefinitionArn=$(aws ecs describe-task-definition --task-definition ecs-sample \
     --query 'taskDefinition.taskDefinitionArn' --output text)
+echo ${TaskDefinitionArn}
+  # (e.g.) arn:aws:ecs:us-east-1:123456789012:task-definition/ecs-sample:5
 ```
 
 ### Amazon ECS サービスを作成
@@ -276,6 +301,14 @@ aws ecs create-service --cli-input-json file://ecs-sample-service.json
 
 ServiceArn=$(aws ecs describe-services --services ecs-sample-service --cluster ecs-sample-cluster \
     --query 'services[].serviceArn' --output text)
+echo ${ServiceArn}
+  # (e.g.) arn:aws:ecs:us-east-1:123456789012:service/ecs-sample-service
+```
+
+### 接続確認
+
+```sh
+curl -s ${DNSName}
 ```
 
 ### AWS CodeDeploy リソースを作成
