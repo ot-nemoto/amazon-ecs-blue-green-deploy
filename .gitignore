@@ -1,3 +1,8 @@
 node_modules/
 coverage/
 .nyc_output/
+
+ecs-sample-service.json
+ecs-sample-task-definition.json
+esc-code-deploy-role-policy-document.json
+esc-task-execution-role-policy-document.json
