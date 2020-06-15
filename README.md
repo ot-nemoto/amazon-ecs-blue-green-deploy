@@ -276,9 +276,11 @@ aws ecs create-service --cli-input-json file://ecs-sample-service.json
 
 ServiceArn=$(aws ecs describe-services --services ecs-sample-service --cluster ecs-sample-cluster \
     --query 'services[].serviceArn' --output text)
+```
 
 ### AWS CodeDeploy リソースを作成
 
+```sh
 aws deploy create-application \
     --application-name ecs-sample \
     --compute-platform ECS
