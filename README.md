@@ -391,6 +391,14 @@ EOT
 aws deploy create-deployment-group --cli-input-json file://ecs-sample-deployment-group.json
 ```
 
+### ソースコードの変更とイメージ作成
+
+```sh
+sed -i -e "s/amazon-ecs-blue-green-deploy/amazon-ecs-blue-green-deploy2/g" routes/index.js
+docker build -f docker/app/Dockerfile -t ${AppRepositoryUri}:latest .
+docker push ${AppRepositoryUri}
+```
+
 ### デプロイ
 
 *Create Bucket for appspec.yaml*
