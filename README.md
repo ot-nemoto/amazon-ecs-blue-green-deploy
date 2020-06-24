@@ -531,6 +531,6 @@ aws iam delete-role --role-name ecsSampleCodeDeployRole
 *Security Groups*
 
 ```sh
-aws ec2 delete-security-group --groupId ${AlbSgId}
-aws ec2 delete-security-group --groupId ${EcsSgId}
+aws ec2 delete-security-group --group-id ${AlbSgId}
+aws ec2 delete-security-group --group-id ${EcsSgId}
 ```
