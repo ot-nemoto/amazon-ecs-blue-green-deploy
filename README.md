@@ -493,7 +493,7 @@ aws elbv2 delete-target-group \
 *Amazon ECR*
 
 ```sh
-aws ecr list-images --repository-name ecs-sample-web --query 'imageIds[].imageDigest' --output text | while read digest
+aws ecr list-images --repository-name ecs-sample-web --query 'imageIds[].[imageDigest]' --output text | while read digest
 do
   aws ecr batch-delete-image --repository-name ecs-sample-web --image-ids imageDigest=${digest}
 done
@@ -501,7 +501,7 @@ aws ecr delete-repository --repository-name ecs-sample-web
 ```
 
 ```sh
-aws ecr list-images --repository-name ecs-sample-app --query 'imageIds[].imageDigest' --output text | while read digest
+aws ecr list-images --repository-name ecs-sample-app --query 'imageIds[].[imageDigest]' --output text | while read digest
 do
   aws ecr batch-delete-image --repository-name ecs-sample-app --image-ids imageDigest=${digest}
 done
